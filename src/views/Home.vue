@@ -4,9 +4,15 @@
       <el-button @click="undo">撤销</el-button>
       <el-button @click="redo">重做</el-button>
       <el-button>插入图片</el-button>
-      <el-button>预览</el-button>
-      <el-button>保存</el-button>
-      <el-button>清空画布</el-button>
+      <el-button @click="preview" style="margin-left: 10px">预览</el-button>
+      <el-button @click="save">保存</el-button>
+      <el-button @click="clearCanvas">清空画布</el-button>
+      <div class="canvas-config">
+        <span>画布大小</span>
+        <input v-model="canvasStyleData.width" />
+        <span>*</span>
+        <input v-model="canvasStyleData.height" />
+      </div>
     </header>
     <main>
       <!-- 左侧组件 -->
@@ -40,6 +46,9 @@
         </el-tabs>
       </section>
     </main>
+
+    <!-- 预览 -->
+    <Preview v-model="isShowPreview" @change="handlePreviewChange" />
   </div>
 </template>
 <script>
@@ -47,20 +56,23 @@ import ComponentList from '@/components/ComponentList' // 左侧列表组件
 import componentList from '@/custom-component/component-list' // 左侧列表数据
 import AttrList from '@/components/AttrList' // 右侧属性列表
 import Editor from '@/components/Editor/index'
+import Preview from '@/components/Editor/Preview'
 import { mapState } from 'vuex'
 import { deepClone } from '@/utils/utils'
 import generateID from '@/utils/generateID'
 
 export default {
-  components: { ComponentList, Editor, AttrList },
+  components: { ComponentList, Editor, AttrList, Preview },
   data() {
     return {
+      isShowPreview: false,
       activeName: 'attr',
     }
   },
   computed: {
     ...mapState({
-      curComponent: state => state.curComponent
+      curComponent: state => state.curComponent,
+      canvasStyleData: state => state.canvasStyleData
     })
   },
   methods: {
@@ -88,6 +100,13 @@ export default {
     redo() {
       this.$store.commit('redo')
     },
+    preview() {
+      this.isShowPreview = true
+      this.$store.commit('setEditMode', 'read')
+    },
+    handlePreviewChange() {
+      this.$store.commit('setEditMode', 'edit')
+    }
   },
 }
 </script>
@@ -152,6 +171,25 @@ export default {
     display: block;
     margin: auto;
     margin-bottom: 10px;
+  }
+
+  .canvas-config {
+    display: inline-block;
+    margin-left: 10px;
+    font-size: 14px;
+    color: #606266;
+
+    input {
+      width: 50px;
+      margin-left: 10px;
+      outline: none;
+      padding: 0 5px;
+      border: 1px solid #ddd;
+      color: #606266;
+    }
+    span {
+      margin-left: 10px;
+    }
   }
 }
 </style>
