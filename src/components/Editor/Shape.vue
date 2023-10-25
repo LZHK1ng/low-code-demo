@@ -38,7 +38,7 @@ export default {
     }
   },
   mounted() {
-    console.log(this.props)
+    // console.log(this.props)
   },
   data() {
     return {
