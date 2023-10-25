@@ -5,7 +5,7 @@ Vue.use(Vuex)
 
 const store = new Vuex.Store({
   state: {
-    editMode: 'read', // 编译器模式 edit read
+    editMode: 'edit', // 编译器模式 edit read
     canvasStyleData: {
       width: 900,
       height: 440,
@@ -35,6 +35,12 @@ const store = new Vuex.Store({
       if (left) curComponent.style.left = left
       if (width) curComponent.style.width = width
       if (height) curComponent.style.height = height
+    },
+    showContextMenu({ curComponent }) {
+
+    },
+    hideContextMenu({ curComponent }) {
+
     }
   },
 })

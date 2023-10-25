@@ -51,6 +51,7 @@ export default {
     })
   },
   methods: {
+    // 获取shape框每个点坐标
     getPointStyle(point) {
       const { width, height } = this.defaultStyle
       const hasL = /l/.test(point)
@@ -89,10 +90,12 @@ export default {
       return style
     },
     handleMouseDown(e) {
-      e.preventDefault()
+      // 输入框不需要阻止默认事件（不然点击输入不了）
+      if (this.element.component != 'v-text') {
+        e.preventDefault()
+      }
       e.stopPropagation()
       this.$store.commit('setCurComponent', { component: this.element, zIndex: this.zIndex })
-      console.log(this.defaultStyle)
       const pos = { ...this.defaultStyle }
       const startX = e.clientX
       const startY = e.clientY
@@ -131,8 +134,8 @@ export default {
     },
     selectCurComponent(e) {
       // 阻止向父组件冒泡
-      e.stopPropagation()
-      e.preventDefault()
+      // e.stopPropagation()
+      // e.preventDefault()
     }
   },
 }

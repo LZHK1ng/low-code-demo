@@ -18,13 +18,27 @@
       :element="item"
       :zIndex="index"
     >
+      <!-- 如果不是输入框 -->
       <component
+        v-if="item.component != 'v-text'"
         class="component"
         :is="item.component"
         :style="getComponentStyle(item.style)"
         :propValue="item.propValue"
       />
+      <!-- 如果是输入框 需要传入element -->
+      <component
+        v-else
+        class="component"
+        :is="item.component"
+        :style="getComponentStyle(item.style)"
+        :propValue="item.propValue"
+        :element="item"
+        @input="handleInput"
+      />
     </Shape>
+    <!-- 右击菜单 -->
+    <ContextMenu />
   </div>
 </template>
 <script>
@@ -32,6 +46,7 @@ import { mapState } from 'vuex'
 import Shape from './Shape'
 import { mounted } from 'vue'
 import getStyle from '@/utils/style.js'
+import ContextMenu from './ContextMenu'
 
 export default {
   props: {
@@ -40,7 +55,7 @@ export default {
       default: true,
     },
   },
-  components: { Shape },
+  components: { Shape, ContextMenu },
   computed: {
     ...mapState({
       componentData: state => state.componentData,
@@ -49,6 +64,7 @@ export default {
     }),
   },
   methods: {
+    // 获取边框样式
     getShapeStyle(style, index) {
       const result = { ...style }
       if (result.width) {
@@ -75,8 +91,12 @@ export default {
 
       return result
     },
+    // 组件样式
     getComponentStyle(style) {
       return getStyle(style, ['top', 'left', 'width', 'height', 'zIndex', 'rotate'])
+    },
+    handleInput(element, value) {
+      element.propValue = value
     }
   }
 }
