@@ -25,24 +25,43 @@
         </div>
       </section>
       <!-- 右侧属性列表 -->
-      <section class="right"></section>
+      <section class="right">
+        <el-tabs v-model="activeName">
+          <el-tab-pane label="属性" name="attr">
+            <AttrList v-if="curComponent" />
+            <p v-else class="placeholder">请选择组件</p>
+          </el-tab-pane>
+          <el-tab-pane label="动画" name="animation">
+            <p class="placeholder">请选择组件</p>
+          </el-tab-pane>
+          <el-tab-pane label="事件" name="events">
+            <p class="placeholder">请选择组件</p>
+          </el-tab-pane>
+        </el-tabs>
+      </section>
     </main>
   </div>
 </template>
 <script>
-import ComponentList from '@/components/ComponentList'
+import ComponentList from '@/components/ComponentList' // 左侧列表组件
 import componentList from '@/custom-component/component-list' // 左侧列表数据
+import AttrList from '@/components/AttrList' // 右侧属性列表
 import Editor from '@/components/Editor/index'
 import { mapState } from 'vuex'
 import { deepClone } from '@/utils/utils'
 import generateID from '@/utils/generateID'
 
 export default {
-  components: { ComponentList, Editor },
+  components: { ComponentList, Editor, AttrList },
   data() {
     return {
-
+      activeName: 'attr',
     }
+  },
+  computed: {
+    ...mapState({
+      curComponent: state => state.curComponent
+    })
   },
   methods: {
     handleDrop(e) {
@@ -116,6 +135,23 @@ export default {
       width: 262px;
       background-color: antiquewhite;
     }
+
+    .placeholder {
+      text-align: center;
+      color: #333;
+    }
+  }
+  .el-scrollbar__view {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    padding-left: 14px;
+  }
+  .el-tag {
+    width: 100%;
+    display: block;
+    margin: auto;
+    margin-bottom: 10px;
   }
 }
 </style>
