@@ -97,6 +97,14 @@ export default {
     },
     handleInput(element, value) {
       element.propValue = value
+      // 根据文本组件高度调整 shape 高度
+      this.$store.commit('setShapeStyle', { height: this.getTextareaHeight(element, value) })
+    },
+    getTextareaHeight(element, text) {
+      let { lineHeight, fontSize, height } = element.style
+      if (lineHeight === '') lineHeight = 1.5
+      const newHeight = text.split('\n').length * lineHeight * fontSize
+      return height > newHeight ? height : newHeight
     }
   }
 }
