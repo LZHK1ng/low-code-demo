@@ -60,6 +60,7 @@ export default {
     },
     deselectCurComponent() {
       this.$store.commit('setCurComponent', { component: null, zIndex: null })
+      this.$store.commit('hideContextMenu')
     },
   },
 }

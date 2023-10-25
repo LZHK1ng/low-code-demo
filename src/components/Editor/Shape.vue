@@ -4,6 +4,7 @@
     :class="{ active: this.active }"
     @click="selectCurComponent"
     @mousedown="handleMouseDown"
+    @contextmenu="handleContextMenu"
   >
     <div
       class="shape-point"
@@ -134,8 +135,24 @@ export default {
     },
     selectCurComponent(e) {
       // 阻止向父组件冒泡
-      // e.stopPropagation()
-      // e.preventDefault()
+      e.stopPropagation()
+      e.preventDefault()
+      this.$store.commit('hideContextMenu')
+    },
+    handleContextMenu(e) {
+      e.preventDefault()
+      e.stopPropagation()
+
+      let left = e.offsetX
+      let top = e.offsetY
+      let target = e.target
+      while (target && !target.className.includes('editor')) {
+        left += target.offsetLeft
+        top += target.offsetTop
+        target = target.parentNode
+      }
+
+      this.$store.commit('showContextMenu', { top, left })
     }
   },
 }
