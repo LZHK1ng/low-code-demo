@@ -43,7 +43,13 @@ export default {
   },
   data() {
     return {
-      pointList: ['t', 'r', 'b', 'l', 'lt', 'rt', 'lb', 'rb']
+      pointList: ['t', 'r', 'b', 'l', 'lt', 'rt', 'lb', 'rb'],
+      directionKey: { // 光标显示样式
+        t: 'n',
+        b: 's',
+        l: 'w',
+        r: 'e'
+      }
     }
   },
   computed: {
@@ -79,13 +85,13 @@ export default {
           newTop = Math.floor(height / 2)
         }
       }
-
+      // console.log(point.split('').reverse().map(m => this.directionKey[m]).join(''))
       const style = {
         left: `${newLeft}px`,
         top: `${newTop}px`,
         marginLeft: hasR ? '-4px' : '-3px',
         marginTop: '-3px',
-        cursor: point
+        cursor: point.split('').reverse().map(m => this.directionKey[m]).join('') + '-resize'
       }
 
       return style
@@ -114,7 +120,6 @@ export default {
         pos.top = curY - startY + startTop
         pos.left = curX - startX + startLeft
 
-        console.log('pse', pos)
         // 修改当前组件样式
         this.$store.commit('setShapeStyle', pos)
 
@@ -153,6 +158,51 @@ export default {
       }
 
       this.$store.commit('showContextMenu', { top, left })
+    },
+    // 点击圆点 放大or缩小
+    handleMouseDownOnPoint(point) {
+      const downEvent = window.event
+      downEvent.stopPropagation()
+      downEvent.preventDefault()
+
+      const pos = { ...this.defaultStyle }
+      const startX = downEvent.clientX
+      const startY = downEvent.clientY
+      const height = pos.height
+      const width = pos.width
+      const left = pos.left
+      const top = pos.top
+
+      const move = (moveEvent) => {
+        const curX = moveEvent.clientX
+        const curY = moveEvent.clientY
+
+        // 移动的距离
+        const disX = curX - startX
+        const disY = curY - startY
+        // 判断当前是拉了哪个点
+        const hasL = /l/.test(point)
+        const hasT = /t/.test(point)
+        const hasR = /r/.test(point)
+        const hasB = /b/.test(point)
+
+        const newHeight = height + (hasT ? -disY : hasB ? +disY : 0)
+        const newWidth = width + (hasL ? -disX : hasR ? +disX : 0)
+
+        pos.height = newHeight > 0 ? newHeight : 0
+        pos.width = newWidth > 0 ? newWidth : 0
+        // 如果是点左边或上边的点需要改变left 和 top值
+        pos.left = left + (hasL ? disX : 0)
+        pos.top = top + (hasT ? disY : 0)
+        this.$store.commit('setShapeStyle', pos)
+      }
+      const up = () => {
+        document.removeEventListener('mousemove', move)
+        document.removeEventListener('mouseup', up)
+      }
+
+      document.addEventListener('mousemove', move)
+      document.addEventListener('mouseup', up)
     }
   },
 }
