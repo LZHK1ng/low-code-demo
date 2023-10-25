@@ -42,6 +42,10 @@ const store = new Vuex.Store({
       if (width) curComponent.style.width = width
       if (height) curComponent.style.height = height
     },
+    // 吸附
+    setShapePosStyle({ curComponent }, { key, value }) {
+      curComponent.style[key] = value
+    },
     showContextMenu(state, { top, left }) {
       state.menuShow = true
       state.menuLeft = left

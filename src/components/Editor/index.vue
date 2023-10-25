@@ -39,6 +39,8 @@
     </Shape>
     <!-- 右击菜单 -->
     <ContextMenu />
+    <!-- 标线 -->
+    <MarkLine />
   </div>
 </template>
 <script>
@@ -47,6 +49,7 @@ import Shape from './Shape'
 import { mounted } from 'vue'
 import getStyle from '@/utils/style.js'
 import ContextMenu from './ContextMenu'
+import MarkLine from './MarkLine'
 
 export default {
   props: {
@@ -55,7 +58,7 @@ export default {
       default: true,
     },
   },
-  components: { Shape, ContextMenu },
+  components: { Shape, ContextMenu, MarkLine },
   computed: {
     ...mapState({
       componentData: state => state.componentData,
