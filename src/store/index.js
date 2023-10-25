@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { swap } from '@/utils/utils'
+import { swap, deepClone } from '@/utils/utils'
 import toast from '@/utils/toast'
 
 Vue.use(Vuex)
@@ -18,7 +18,8 @@ const store = new Vuex.Store({
     componentData: [],
     curComponent: null,
     curComponentZIndex: null,
-
+    snapshotData: [], // 编辑器快照数据
+    snapshotIndex: -1, // 快照索引
   },
   mutations: {
     setEditMode(state, mode) {
@@ -82,6 +83,32 @@ const store = new Vuex.Store({
         toast('已经到底了', 'error')
       }
     },
+    // 撤销操作 -> 将上一步的快照数据赋值给画布
+    undo(state) {
+      if (state.snapshotIndex >= 0) {
+        state.snapshotIndex--
+        store.commit('setComponentData', deepClone(state.snapshotData[state.snapshotIndex]))
+      }
+    },
+    // 重做操作
+    redo(state) {
+      if (state.snapshotIndex < state.snapshotData.length - 1) {
+        state.snapshotIndex++
+        store.commit('setComponentData', deepClone(state.snapshotData[state.snapshotIndex]))
+      }
+    },
+    setComponentData(state, componentData = []) {
+      Vue.set(state, 'componentData', componentData)
+    },
+    // 添加新的快照
+    recordSnapshot(state) {
+      // 这里需要 snapshotIndex 索引来记录，不用push
+      state.snapshotData[++state.snapshotIndex] = deepClone(state.componentData)
+      // 在 undo(重做) 过程中，添加新的快照时，要将它后面的快照清理掉
+      if (state.snapshotIndex < state.snapshotData.length - 1) {
+        state.snapshotData = state.snapshotData.slice(0, state.snapshotIndex + 1)
+      }
+    }
   },
 })
 

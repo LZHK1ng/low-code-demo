@@ -1,8 +1,8 @@
 <template>
   <div class="home">
     <header>
-      <el-button>撤销</el-button>
-      <el-button>重做</el-button>
+      <el-button @click="undo">撤销</el-button>
+      <el-button @click="redo">重做</el-button>
       <el-button>插入图片</el-button>
       <el-button>预览</el-button>
       <el-button>保存</el-button>
@@ -53,6 +53,7 @@ export default {
       component.style.left = e.offsetX
       component.id = generateID()
       this.$store.commit('addComponent', component)
+      this.$store.commit('recordSnapshot')
     },
     handleDragOver(e) {
       e.preventDefault()
@@ -61,6 +62,12 @@ export default {
     deselectCurComponent() {
       this.$store.commit('setCurComponent', { component: null, zIndex: null })
       this.$store.commit('hideContextMenu')
+    },
+    undo() {
+      this.$store.commit('undo')
+    },
+    redo() {
+      this.$store.commit('redo')
     },
   },
 }

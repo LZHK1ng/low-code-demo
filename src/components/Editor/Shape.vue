@@ -131,6 +131,8 @@ export default {
       }
       // 鼠标抬起时结束移动
       const up = (moveEvent) => {
+        hasMove && this.$store.commit('recordSnapshot')
+
         document.removeEventListener('mousemove', move)
         document.removeEventListener('mouseup', up)
       }
@@ -173,7 +175,10 @@ export default {
       const left = pos.left
       const top = pos.top
 
+      // 是否需要保存快照
+      let needSave = false
       const move = (moveEvent) => {
+        needSave = true
         const curX = moveEvent.clientX
         const curY = moveEvent.clientY
 
@@ -197,6 +202,7 @@ export default {
         this.$store.commit('setShapeStyle', pos)
       }
       const up = () => {
+        needSave && this.$store.commit('recordSnapshot')
         document.removeEventListener('mousemove', move)
         document.removeEventListener('mouseup', up)
       }
