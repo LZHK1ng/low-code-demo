@@ -63,6 +63,15 @@ import generateID from '@/utils/generateID'
 
 export default {
   components: { ComponentList, Editor, AttrList, Preview },
+  created() {
+    console.log(localStorage)
+    if (localStorage.getItem('canvasData')) {
+      this.$store.commit('setComponentData', JSON.parse(localStorage.getItem('canvasData')))
+    }
+    if (localStorage.getItem('canvasStyle')) {
+      this.$store.commit('setCanvasStyle', JSON.parse(localStorage.getItem('canvasStyle')))
+    }
+  },
   data() {
     return {
       isShowPreview: false,
@@ -72,7 +81,8 @@ export default {
   computed: {
     ...mapState({
       curComponent: state => state.curComponent,
-      canvasStyleData: state => state.canvasStyleData
+      canvasStyleData: state => state.canvasStyleData,
+      componentData: state => state.componentData
     })
   },
   methods: {
@@ -106,6 +116,15 @@ export default {
     },
     handlePreviewChange() {
       this.$store.commit('setEditMode', 'edit')
+    },
+    save() {
+      localStorage.setItem('canvasData', JSON.stringify(this.componentData))
+      localStorage.setItem('canvasStyle', JSON.stringify(this.canvasStyleData))
+      console.log(localStorage)
+      this.$message.success('保存成功')
+    },
+    clearCanvas() {
+      this.$store.commit('setComponentData', [])
     }
   },
 }
