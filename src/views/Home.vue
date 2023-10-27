@@ -3,7 +3,8 @@
     <header>
       <el-button @click="undo">撤销</el-button>
       <el-button @click="redo">重做</el-button>
-      <el-button>插入图片</el-button>
+      <label for="input" class="insert">插入图片</label>
+      <input type="file" @change="handleFileChange" id="input" hidden />
       <el-button @click="preview" style="margin-left: 10px">预览</el-button>
       <el-button @click="save">保存</el-button>
       <el-button @click="clearCanvas">清空画布</el-button>
@@ -157,13 +158,14 @@ import { deepClone } from '@/utils/utils'
 import { eventList } from '@/utils/events'
 import generateID from '@/utils/generateID'
 import eventBus from '@/utils/eventBus'
+import toast from '@/utils/toast'
 
 export default {
   components: { ComponentList, Editor, AttrList, Preview, Modal },
   created() {
     // console.log(localStorage)
     if (localStorage.getItem('canvasData')) {
-      this.$store.commit('setComponentData', JSON.parse(localStorage.getItem('canvasData')))
+      this.$store.commit('setComponentData', this.resetID(JSON.parse(localStorage.getItem('canvasData'))))
     }
     if (localStorage.getItem('canvasStyle')) {
       this.$store.commit('setCanvasStyle', JSON.parse(localStorage.getItem('canvasStyle')))
@@ -191,6 +193,13 @@ export default {
     })
   },
   methods: {
+    // 如果localStorage有数据，重新进入页面，插入图片，id可能会初始化会变为0导致id重复
+    resetID(componentData) {
+      componentData.forEach(item => {
+        item.id = generateID()
+      })
+      return componentData
+    },
     handleDrop(e) {
       e.preventDefault()
       e.stopPropagation()
@@ -204,6 +213,38 @@ export default {
     handleDragOver(e) {
       e.preventDefault()
       e.dataTransfer.dropEffect = 'copy'
+    },
+    handleFileChange(e) {
+      const file = e.target.files[0]
+      if (!file.type.includes('image')) {
+        toast('只能插入图片', 'error')
+        return
+      }
+      const reader = new FileReader()
+      reader.onload = (res) => {
+        const fileResult = res.target.result
+        const img = new Image()
+        img.onload = () => {
+          this.$store.commit('addComponent', {
+            id: generateID(),
+            component: 'Picture',
+            label: '图片',
+            icon: '',
+            propValue: fileResult,
+            animations: [],
+            events: [],
+            style: {
+              top: 0,
+              left: 0,
+              width: img.width,
+              height: img.height,
+              rotate: '',
+            },
+          })
+        }
+        img.src = fileResult
+      }
+      reader.readAsDataURL(file)
     },
     deselectCurComponent() {
       this.$store.commit('setCurComponent', { component: null, zIndex: null })
@@ -285,7 +326,8 @@ export default {
       order: 2;
       height: 100%;
       flex-grow: 1;
-      background-color: aquamarine;
+      background: #f5f5f5;
+      padding: 20px;
 
       .content {
         height: 100%;
@@ -373,6 +415,38 @@ export default {
     .el-button {
       display: inline-block;
       margin-bottom: 10px;
+    }
+  }
+
+  .insert {
+    display: inline-block;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    background: #fff;
+    border: 1px solid #dcdfe6;
+    color: #606266;
+    -webkit-appearance: none;
+    text-align: center;
+    box-sizing: border-box;
+    outline: none;
+    margin: 0;
+    transition: 0.1s;
+    font-weight: 500;
+    padding: 9px 15px;
+    font-size: 12px;
+    border-radius: 3px;
+    margin-left: 10px;
+
+    &:active {
+      color: #3a8ee6;
+      border-color: #3a8ee6;
+      outline: none;
+    }
+
+    &:hover {
+      background-color: #ecf5ff;
+      color: #3a8ee6;
     }
   }
 }
