@@ -112,6 +112,13 @@ const store = new Vuex.Store({
       if (state.snapshotIndex < state.snapshotData.length - 1) {
         state.snapshotData = state.snapshotData.slice(0, state.snapshotIndex + 1)
       }
+    },
+    addEvent({ curComponent }, { event, param }) {
+      curComponent.events[event] = param
+    },
+    removeEvent({ curComponent }, event) {
+      console.log(curComponent)
+      delete curComponent.events[event]
     }
   },
 })

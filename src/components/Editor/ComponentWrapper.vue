@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div @click="handleClick">
     <component
       class="component"
       :is="config.component"
@@ -10,6 +10,7 @@
 </template>
 <script>
 import getStyle from '@/utils/style'
+import { mixins } from '@/utils/events'
 
 export default {
   props: {
@@ -18,8 +19,16 @@ export default {
       require: true
     }
   },
+  mixins: [mixins],
   methods: {
-    getStyle
+    getStyle,
+    handleClick() {
+      console.log(this.config)
+      const events = this.config.events
+      Object.keys(events).forEach(event => {
+        this[event](events[event])
+      })
+    }
   }
 }
 </script>

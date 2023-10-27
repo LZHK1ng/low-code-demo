@@ -33,18 +33,65 @@
       <!-- 右侧属性列表 -->
       <section class="right">
         <el-tabs v-model="activeName">
+          <!-- 属性 -->
           <el-tab-pane label="属性" name="attr">
             <AttrList v-if="curComponent" />
             <p v-else class="placeholder">请选择组件</p>
           </el-tab-pane>
+          <!-- 动画 -->
           <el-tab-pane label="动画" name="animation">
             <p class="placeholder">请选择组件</p>
           </el-tab-pane>
+          <!-- 事件 -->
           <el-tab-pane label="事件" name="events">
-            <p class="placeholder">请选择组件</p>
+            <div v-if="curComponent" class="div-events">
+              <el-button @click="isShowEvent = true">添加事件</el-button>
+              <div>
+                <el-tag
+                  v-for="event in Object.keys(curComponent.events)"
+                  :key="event"
+                  closable
+                  @close="removeEvent(event)"
+                >
+                  {{ event }}
+                </el-tag>
+              </div>
+            </div>
+            <p v-else class="placeholder">请选择组件</p>
           </el-tab-pane>
         </el-tabs>
       </section>
+
+      <!-- 添加事件 -->
+      <AddEventModal :isShowEvent="isShowEvent" @closeModal="closeModal">
+        <el-tabs v-model="eventActiveName">
+          <el-tab-pane
+            v-for="item in eventList"
+            :key="item.key"
+            :label="item.label"
+            :name="item.key"
+            style="padding: 0 20px"
+          >
+            <el-input
+              v-if="item.key == 'redirect'"
+              v-model="item.param"
+              type="textarea"
+              placeholder="请输入完整的 URL"
+            ></el-input>
+            <el-input
+              v-if="item.key == 'alert'"
+              v-model="item.param"
+              type="textarea"
+              placeholder="请输入要 alert 的内容"
+            ></el-input>
+            <el-button
+              style="margin-top: 20px"
+              @click="addEvent(item.key, item.param)"
+              >确定</el-button
+            >
+          </el-tab-pane>
+        </el-tabs>
+      </AddEventModal>
     </main>
 
     <!-- 预览 -->
@@ -55,16 +102,18 @@
 import ComponentList from '@/components/ComponentList' // 左侧列表组件
 import componentList from '@/custom-component/component-list' // 左侧列表数据
 import AttrList from '@/components/AttrList' // 右侧属性列表
+import AddEventModal from '@/components/AddEventModal'
 import Editor from '@/components/Editor/index'
 import Preview from '@/components/Editor/Preview'
 import { mapState } from 'vuex'
 import { deepClone } from '@/utils/utils'
+import { eventList } from '@/utils/events'
 import generateID from '@/utils/generateID'
 
 export default {
-  components: { ComponentList, Editor, AttrList, Preview },
+  components: { ComponentList, Editor, AttrList, Preview, AddEventModal },
   created() {
-    console.log(localStorage)
+    // console.log(localStorage)
     if (localStorage.getItem('canvasData')) {
       this.$store.commit('setComponentData', JSON.parse(localStorage.getItem('canvasData')))
     }
@@ -74,8 +123,12 @@ export default {
   },
   data() {
     return {
+      test: false,
       isShowPreview: false,
+      isShowEvent: false,
       activeName: 'attr',
+      eventActiveName: 'redirect',
+      eventList
     }
   },
   computed: {
@@ -120,11 +173,25 @@ export default {
     save() {
       localStorage.setItem('canvasData', JSON.stringify(this.componentData))
       localStorage.setItem('canvasStyle', JSON.stringify(this.canvasStyleData))
-      console.log(localStorage)
       this.$message.success('保存成功')
     },
     clearCanvas() {
       this.$store.commit('setComponentData', [])
+    },
+    closeModal() {
+      this.isShowEvent = false
+    },
+    addEvent(event, param) {
+      this.isShowEvent = false
+      this.$store.commit('addEvent', { event, param })
+    },
+    removeEvent(event) {
+      this.$store.commit('removeEvent', event)
+      // 解决点击close页面没有马上刷新问题
+      this.$nextTick(() => {
+        this.isShowEvent = true
+        this.isShowEvent = false
+      })
     }
   },
 }
@@ -208,6 +275,16 @@ export default {
     }
     span {
       margin-left: 10px;
+    }
+  }
+
+  .div-events {
+    text-align: center;
+    padding: 0 20px;
+
+    .el-button {
+      display: inline-block;
+      margin-bottom: 10px;
     }
   }
 }

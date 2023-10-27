@@ -90,7 +90,7 @@ export default {
       curComponent: state => state.curComponent
     }),
     styleKeys() {
-      console.log(this.curComponent ? Object.keys(this.curComponent.style) : [])
+      // console.log(this.curComponent ? Object.keys(this.curComponent.style) : [])
       return this.curComponent ? Object.keys(this.curComponent.style) : []
     }
   }
