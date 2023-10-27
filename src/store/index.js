@@ -117,8 +117,14 @@ const store = new Vuex.Store({
       curComponent.events[event] = param
     },
     removeEvent({ curComponent }, event) {
-      console.log(curComponent)
+      // console.log(curComponent)
       delete curComponent.events[event]
+    },
+    addAnimation({ curComponent }, animate) {
+      curComponent.animations.push(animate)
+    },
+    removeAnimation({ curComponent }, index) {
+      curComponent.animations.splice(index, 1)
     }
   },
 })

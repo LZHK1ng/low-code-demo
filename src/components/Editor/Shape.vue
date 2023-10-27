@@ -19,6 +19,7 @@
 <script>
 import { mapState } from 'vuex'
 import eventBus from '@/utils/eventBus'
+import runAnimation from '@/utils/runAnimation'
 
 export default {
   props: {
@@ -40,7 +41,11 @@ export default {
     }
   },
   mounted() {
-    // console.log(this.props)
+    eventBus.$on('runAnimation', () => {
+      if (this.element == this.curComponent) {
+        runAnimation(this.$el, this.curComponent.animations)
+      }
+    })
   },
   data() {
     return {
@@ -103,6 +108,7 @@ export default {
         e.preventDefault()
       }
       e.stopPropagation()
+      // console.log(this.element)
       this.$store.commit('setCurComponent', { component: this.element, zIndex: this.zIndex })
       const pos = { ...this.defaultStyle }
       const startX = e.clientX
@@ -137,7 +143,7 @@ export default {
         })
       }
       // 鼠标抬起时结束移动
-      const up = (moveEvent) => {
+      const up = () => {
         hasMove && this.$store.commit('recordSnapshot')
         // 触发元素停止移动事件，用于隐藏标线
         eventBus.$emit('unmove')

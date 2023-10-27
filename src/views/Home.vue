@@ -40,7 +40,21 @@
           </el-tab-pane>
           <!-- 动画 -->
           <el-tab-pane label="动画" name="animation">
-            <p class="placeholder">请选择组件</p>
+            <div v-if="curComponent" class="div-animation">
+              <el-button @click="isShowAnimation = true">添加动画</el-button>
+              <el-button @click="previewAnimation">预览动画</el-button>
+              <div>
+                <el-tag
+                  v-for="(animation, index) in curComponent.animations"
+                  :key="index"
+                  closable
+                  @close="removeAnimation(index)"
+                >
+                  {{ animation.label }}
+                </el-tag>
+              </div>
+            </div>
+            <p v-else class="placeholder">请选择组件</p>
           </el-tab-pane>
           <!-- 事件 -->
           <el-tab-pane label="事件" name="events">
@@ -61,6 +75,38 @@
           </el-tab-pane>
         </el-tabs>
       </section>
+
+      <!-- 添加动画 -->
+      <Modal v-model="isShowAnimation">
+        <el-tabs v-model="animationActiveName">
+          <el-tab-pane
+            v-for="item in animationClassData"
+            :key="item.label"
+            :label="item.label"
+            :name="item.label"
+            style="padding: 0 20px"
+          >
+            <el-scrollbar>
+              <div
+                class="animate"
+                v-for="(animate, index) in item.children"
+                :key="index"
+                @mouseover="hoverPreviewAnimation = animate.value"
+                @click="addAnimation(animate)"
+              >
+                <div
+                  :class="[
+                    hoverPreviewAnimation === animate.value &&
+                      animate.value + ' animated',
+                  ]"
+                >
+                  {{ animate.label }}
+                </div>
+              </div>
+            </el-scrollbar>
+          </el-tab-pane>
+        </el-tabs>
+      </Modal>
 
       <!-- 添加事件 -->
       <Modal v-model="isShowEvent">
@@ -105,10 +151,12 @@ import AttrList from '@/components/AttrList' // 右侧属性列表
 import Modal from '@/components/Modal'
 import Editor from '@/components/Editor/index'
 import Preview from '@/components/Editor/Preview'
+import animationClassData from '@/utils/animationClassData'
 import { mapState } from 'vuex'
 import { deepClone } from '@/utils/utils'
 import { eventList } from '@/utils/events'
 import generateID from '@/utils/generateID'
+import eventBus from '@/utils/eventBus'
 
 export default {
   components: { ComponentList, Editor, AttrList, Preview, Modal },
@@ -123,12 +171,16 @@ export default {
   },
   data() {
     return {
-      test: false,
       isShowPreview: false,
       isShowEvent: false,
+      isShowAnimation: false,
       activeName: 'attr',
       eventActiveName: 'redirect',
-      eventList
+      animationActiveName: '进入',
+      animationClassData,
+      hoverPreviewAnimation: '',
+      eventList,
+      eventBus
     }
   },
   computed: {
@@ -192,6 +244,16 @@ export default {
         this.isShowEvent = true
         this.isShowEvent = false
       })
+    },
+    previewAnimation() {
+      eventBus.$emit('runAnimation')
+    },
+    addAnimation(animate) {
+      this.$store.commit('addAnimation', animate)
+      this.isShowAnimation = false
+    },
+    removeAnimation(index) {
+      this.$store.commit('removeAnimation', index)
     }
   },
 }
@@ -246,17 +308,20 @@ export default {
       color: #333;
     }
   }
-  .el-scrollbar__view {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    padding-left: 14px;
-  }
+
   .el-tag {
-    width: 100%;
+    width: 60%;
     display: block;
     margin: auto;
     margin-bottom: 10px;
+  }
+
+  .div-animation {
+    text-align: center;
+
+    & > div {
+      margin-top: 20px;
+    }
   }
 
   .canvas-config {
@@ -275,6 +340,29 @@ export default {
     }
     span {
       margin-left: 10px;
+    }
+  }
+
+  .el-scrollbar__view {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    padding-left: 14px;
+
+    .animate > div {
+      width: 100px;
+      height: 60px;
+      background: #f5f8fb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0 12px;
+      margin-bottom: 10px;
+      font-size: 12px;
+      color: #333;
+      border-radius: 3px;
+      cursor: pointer;
+      user-select: none;
     }
   }
 

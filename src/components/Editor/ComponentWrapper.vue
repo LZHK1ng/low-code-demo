@@ -10,7 +10,8 @@
 </template>
 <script>
 import getStyle from '@/utils/style'
-import { mixins } from '@/utils/events'
+import runAnimation from '@/utils/runAnimation'
+import { mixins } from '@/utils/events' // 拿了events.js里面method的方法alert和redirect
 
 export default {
   props: {
@@ -19,6 +20,9 @@ export default {
       require: true
     }
   },
+  mounted() {
+    runAnimation(this.$el, this.config.animations)
+  },
   mixins: [mixins],
   methods: {
     getStyle,
@@ -26,7 +30,7 @@ export default {
       // console.log(this.config)
       const events = this.config.events
       Object.keys(events).forEach(event => {
-        this[event](events[event])
+        this[event](events[event]) // alert(xxx)
       })
     }
   }
