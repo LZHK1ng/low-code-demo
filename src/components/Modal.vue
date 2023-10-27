@@ -1,21 +1,25 @@
 <template>
-  <div class="add-event-modal-bg" v-if="isShowEvent" @click="hideModal">
-    <div class="add-event-modal fadeInLeft animated" @click="stopPropagation">
+  <div class="modal-bg" v-if="show" @click="hideModal">
+    <div class="modal fadeInLeft animated" @click="stopPropagation">
       <slot></slot>
     </div>
   </div>
 </template>
 <script>
 export default {
+  model: {
+    prop: 'show',
+    event: 'change'
+  },
   props: {
-    isShowEvent: {
+    show: {
       type: Boolean,
       default: false,
     }
   },
   methods: {
     hideModal() {
-      this.$emit('closeModal')
+      this.$emit('change')
     },
     stopPropagation(e) {
       e.stopPropagation()
@@ -24,7 +28,7 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.add-event-modal-bg {
+.modal-bg {
   position: fixed;
   right: 0;
   top: 0;
@@ -33,7 +37,7 @@ export default {
   background: rgb(0, 0, 0, 0.5);
   z-index: 1011;
 
-  .add-event-modal {
+  .modal {
     width: 400px;
     height: 100%;
     background: #fff;

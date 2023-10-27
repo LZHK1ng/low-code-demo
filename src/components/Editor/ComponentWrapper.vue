@@ -23,7 +23,7 @@ export default {
   methods: {
     getStyle,
     handleClick() {
-      console.log(this.config)
+      // console.log(this.config)
       const events = this.config.events
       Object.keys(events).forEach(event => {
         this[event](events[event])

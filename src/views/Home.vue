@@ -63,7 +63,7 @@
       </section>
 
       <!-- 添加事件 -->
-      <AddEventModal :isShowEvent="isShowEvent" @closeModal="closeModal">
+      <Modal v-model="isShowEvent">
         <el-tabs v-model="eventActiveName">
           <el-tab-pane
             v-for="item in eventList"
@@ -91,7 +91,7 @@
             >
           </el-tab-pane>
         </el-tabs>
-      </AddEventModal>
+      </Modal>
     </main>
 
     <!-- 预览 -->
@@ -102,7 +102,7 @@
 import ComponentList from '@/components/ComponentList' // 左侧列表组件
 import componentList from '@/custom-component/component-list' // 左侧列表数据
 import AttrList from '@/components/AttrList' // 右侧属性列表
-import AddEventModal from '@/components/AddEventModal'
+import Modal from '@/components/Modal'
 import Editor from '@/components/Editor/index'
 import Preview from '@/components/Editor/Preview'
 import { mapState } from 'vuex'
@@ -111,7 +111,7 @@ import { eventList } from '@/utils/events'
 import generateID from '@/utils/generateID'
 
 export default {
-  components: { ComponentList, Editor, AttrList, Preview, AddEventModal },
+  components: { ComponentList, Editor, AttrList, Preview, Modal },
   created() {
     // console.log(localStorage)
     if (localStorage.getItem('canvasData')) {
