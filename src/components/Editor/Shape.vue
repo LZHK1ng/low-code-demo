@@ -134,12 +134,12 @@ export default {
         /**
          * 等更新完当前组件的样式绘制到屏幕后再判断是否需要吸附
          * 如果不使用 $nextTick，事件操作可能会发生在DOM更新之前，吸附后无法移动
-         * 后两个参数代表鼠标移动方向
+         * 后两个参数代表鼠标移动方向 -> 用于解决同一方向最多显示一条线段美化界面 TODO
          * curY - startY > 0 true 表示向下移动 false 表示向上移动
          * curX - startX > 0 true 表示向左移动 false 表示向右移动
          */
         this.$nextTick(() => {
-          eventBus.$emit('move', this.$el, curY - startY > 0, curX - startX > 0)
+          eventBus.$emit('move')
         })
       }
       // 鼠标抬起时结束移动

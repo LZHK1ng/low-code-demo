@@ -12,6 +12,7 @@
 </template>
 <script>
 import eventBus from '@/utils/eventBus'
+import { mapState } from 'vuex'
 
 export default {
   data() {
@@ -29,11 +30,17 @@ export default {
       editor: null
     }
   },
+  computed: {
+    ...mapState({
+      curComponent: state => state.curComponent,
+      componentData: state => state.componentData
+    })
+  },
   mounted() {
     this.editor = document.querySelector('#editor')
     // 监听元素移动和不移动的事件
-    eventBus.$on('move', (dragNode, isDownward, isRightward) => {
-      this.showLine(dragNode, isDownward, isRightward)
+    eventBus.$on('move', (isDownward, isRightward) => {
+      this.showLine(isDownward, isRightward)
     })
 
     eventBus.$on('unmove', () => {
@@ -47,22 +54,29 @@ export default {
       })
     },
 
-    showLine(dragNode, isDownward, isRightward) {
+    showLine() {
       // console.log(dragNode, isDownward, isRightward)
       const lines = this.$refs
       // 选取当前画板中的所有组件的NodeList
-      const components = document.querySelectorAll('.shape')
-      const dragNodeRectInfo = this.getNodeRelativePosition(dragNode)
-      // 当前拖动组件的 宽度/高度 的一半 -> 判断当前是否接近
+      const components = this.componentData
+      // 解构创建一个新对象
+      const dragNodeRectInfo = { ...this.curComponent.style }
+      // 当前拖动组件的 宽度/高度 的一半 -> 判断当前是否中间对齐 这里的right和bottom表示Shape 右侧和底部 距离 顶部和左侧的距离
       const dragNodeHalfWidth = dragNodeRectInfo.width / 2
       const dragNodeHalfHeight = dragNodeRectInfo.height / 2
+      dragNodeRectInfo.right = dragNodeRectInfo.left + dragNodeRectInfo.width
+      dragNodeRectInfo.bottom = dragNodeRectInfo.top + dragNodeRectInfo.height
 
       this.hideLine()
-      components.forEach(node => {
+      components.forEach(component => {
         // 相同的组件不用管
-        if (node == dragNode) return
+        if (component == this.curComponent) return
 
-        const { width, height, left, top, right, bottom } = this.getNodeRelativePosition(node)
+        // const { width, height, left, top, right, bottom } = this.getNodeRelativePosition(component)
+        const { width, height, left, top } = component.style
+        const right = left + width
+        const bottom = top + height
+
         const nodeHalfWidth = width / 2
         const nodeHalfHeight = height / 2
 
@@ -171,17 +185,17 @@ export default {
       })
     },
     // 获取节点相对编辑器的位置
-    getNodeRelativePosition(node) {
-      let { height, width, left, top, right, bottom } = node.getBoundingClientRect()
-      const editorRectInfo = this.editor.getBoundingClientRect()
+    // getNodeRelativePosition(node) {
+    //   let { height, width, left, top, right, bottom } = node.getBoundingClientRect()
+    //   const editorRectInfo = this.editor.getBoundingClientRect()
 
-      left -= editorRectInfo.left
-      top -= editorRectInfo.top
-      right -= editorRectInfo.left
-      bottom -= editorRectInfo.top
+    //   left -= editorRectInfo.left
+    //   top -= editorRectInfo.top
+    //   right -= editorRectInfo.left
+    //   bottom -= editorRectInfo.top
 
-      return { width, height, left, top, right, bottom }
-    },
+    //   return { width, height, left, top, right, bottom }
+    // },
     // 判断当前是否靠近
     isNearly(dragValue, targetValue) {
       return Math.abs(dragValue - targetValue) <= this.diff
