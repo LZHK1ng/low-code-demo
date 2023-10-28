@@ -233,7 +233,7 @@ export default {
 }
 
 .active {
-  border: 1px solid #70c0ff;
+  outline: 1px solid #70c0ff;
 }
 
 .shape-point {
