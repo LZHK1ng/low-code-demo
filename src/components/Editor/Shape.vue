@@ -3,15 +3,20 @@
     class="shape"
     :class="{ active: this.active }"
     @click="selectCurComponent"
-    @mousedown="handleMouseDown"
+    @mousedown="handleMouseDownOnShape"
     @contextmenu="handleContextMenu"
   >
+    <i
+      class="el-icon-refresh-right"
+      v-show="active"
+      @mousedown="handleRotate"
+    ></i>
     <div
       class="shape-point"
       v-for="(item, index) in active ? pointList : []"
       :key="index"
       @mousedown="handleMouseDownOnPoint(item)"
-      :style="getPointStyle(item)"
+      :style="getPointStyle(item, index)"
     ></div>
     <slot></slot>
   </div>
@@ -20,6 +25,7 @@
 import { mapState } from 'vuex'
 import eventBus from '@/utils/eventBus'
 import runAnimation from '@/utils/runAnimation'
+import calculateComponentPositonAndSize from '@/utils/calculateComponentPositionAndSize'
 
 export default {
   props: {
@@ -49,13 +55,9 @@ export default {
   },
   data() {
     return {
-      pointList: ['t', 'r', 'b', 'l', 'lt', 'rt', 'lb', 'rb'],
-      directionKey: { // 光标显示样式
-        t: 'n',
-        b: 's',
-        l: 'w',
-        r: 'e'
-      }
+      pointList: ['t', 'rt', 'r', 'rb', 'b', 'lb', 'l', 'lt'],
+      directions: ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'], // 北方向 顺时针旋转依次对应8个方向
+      cursors: [],
     }
   },
   computed: {
@@ -65,7 +67,7 @@ export default {
   },
   methods: {
     // 获取shape框每个点坐标
-    getPointStyle(point) {
+    getPointStyle(point, index) {
       const { width, height } = this.defaultStyle
       const hasL = /l/.test(point)
       const hasT = /t/.test(point)
@@ -95,14 +97,24 @@ export default {
       const style = {
         left: `${newLeft}px`,
         top: `${newTop}px`,
-        marginLeft: hasR ? '-4px' : '-3px',
-        marginTop: '-3px',
-        cursor: point.split('').reverse().map(m => this.directionKey[m]).join('') + '-resize'
+        marginLeft: hasR ? '-4px' : '-4px',
+        marginTop: '-4px',
+        cursor: this.cursors[index]
       }
 
       return style
     },
-    handleMouseDown(e) {
+    getCursor() {
+      // 防止角度有负数 +360，最后%8表示分成八份，旋转角度在8个部分中的一个
+      const offsetNum = Math.floor(((this.curComponent.style.rotate + 360) % 360) / 45) % 8
+      const { directions } = this
+      const newDirections = [
+        ...directions.slice(offsetNum),
+        ...directions.slice(0, offsetNum)
+      ]
+      return newDirections.map(direction => direction + '-resize')
+    },
+    handleMouseDownOnShape(e) {
       // 输入框不需要阻止默认事件（不然点击输入不了）
       if (this.element.component != 'v-text') {
         e.preventDefault()
@@ -149,6 +161,7 @@ export default {
         eventBus.$emit('unmove')
         document.removeEventListener('mousemove', move)
         document.removeEventListener('mouseup', up)
+        this.cursors = this.getCursor() // 根据旋转角度获取光标位置
       }
 
       document.addEventListener('mousemove', move)
@@ -181,44 +194,86 @@ export default {
       downEvent.stopPropagation()
       downEvent.preventDefault()
 
-      const pos = { ...this.defaultStyle }
-      const startX = downEvent.clientX
-      const startY = downEvent.clientY
-      const height = pos.height
-      const width = pos.width
-      const left = pos.left
-      const top = pos.top
+      const style = { ...this.defaultStyle }
+
+      // 中心点坐标
+      const center = {
+        x: style.left + style.width / 2,
+        y: style.top + style.height / 2
+      }
+
+      // 获取画布位移信息
+      const editorRectInfo = document.querySelector('#editor').getBoundingClientRect()
+      // 获取当前点击坐标
+      const clickPoint = {
+        x: downEvent.clientX - editorRectInfo.left,
+        y: downEvent.clientY - editorRectInfo.top
+      }
+      // 获取对称点坐标
+      const symmetricPoint = {
+        x: 2 * center.x - clickPoint.x,
+        y: 2 * center.y - clickPoint.y
+      }
 
       // 是否需要保存快照
       let needSave = false
       const move = (moveEvent) => {
         needSave = true
-        const curX = moveEvent.clientX
-        const curY = moveEvent.clientY
+        // 按住组件左上角进行拉伸时，通过当前鼠标实时坐标和对称点计算出新的组件中心点
+        const curPosition = {
+          x: moveEvent.clientX - editorRectInfo.left,
+          y: moveEvent.clientY - editorRectInfo.top
+        }
 
-        // 移动的距离
-        const disX = curX - startX
-        const disY = curY - startY
-        // 判断当前是拉了哪个点
-        const hasL = /l/.test(point)
-        const hasT = /t/.test(point)
-        const hasR = /r/.test(point)
-        const hasB = /b/.test(point)
-
-        const newHeight = height + (hasT ? -disY : hasB ? +disY : 0)
-        const newWidth = width + (hasL ? -disX : hasR ? +disX : 0)
-
-        pos.height = newHeight > 0 ? newHeight : 0
-        pos.width = newWidth > 0 ? newWidth : 0
-        // 如果是点左边或上边的点需要改变left 和 top值
-        pos.left = left + (hasL ? disX : 0)
-        pos.top = top + (hasT ? disY : 0)
-        this.$store.commit('setShapeStyle', pos)
+        calculateComponentPositonAndSize(point, style, curPosition, { symmetricPoint })
+        console.log(style)
+        this.$store.commit('setShapeStyle', style)
       }
       const up = () => {
         needSave && this.$store.commit('recordSnapshot')
         document.removeEventListener('mousemove', move)
         document.removeEventListener('mouseup', up)
+      }
+
+      document.addEventListener('mousemove', move)
+      document.addEventListener('mouseup', up)
+    },
+    handleRotate(e) {
+      e.stopPropagation()
+      // 获得当前旋转的中心点坐标
+      const rect = this.$el.getBoundingClientRect()
+      const centerX = rect.width / 2 + rect.left
+      const centerY = rect.height / 2 + rect.top
+      const pos = { ...this.defaultStyle }
+      const startRotate = pos.rotate
+      // 旋转前坐标
+      const startX = e.clientX
+      const startY = e.clientY
+
+      // 旋转前角度
+      const rotateDegBefore = Math.atan2(startY - centerY, startX - centerX) / (Math.PI / 180)
+
+      let hasMove = false
+      const move = (rotateEvent) => {
+        hasMove = true
+        // 旋转后坐标
+        const curX = rotateEvent.clientX
+        const curY = rotateEvent.clientY
+
+        // 旋转后角度
+        const rotateDegAfter = Math.atan2(curY - centerY, curX - centerX) / (Math.PI / 180)
+        // 得到旋转的角度
+        pos.rotate = startRotate + rotateDegAfter - rotateDegBefore
+
+        this.$store.commit('setShapeStyle', pos)
+      }
+
+      const up = () => {
+        hasMove && this.$store.commit('recordSnapshot')
+        document.removeEventListener('mousemove', move)
+        document.removeEventListener('mouseup', up)
+        this.cursors = this.getCursor() // 根据旋转角度获取光标位置
+        console.log(this.cursors)
       }
 
       document.addEventListener('mousemove', move)
@@ -230,18 +285,39 @@ export default {
 <style lang="scss">
 .shape {
   position: absolute;
+
+  &:hover {
+    cursor: move;
+  }
 }
 
 .active {
   outline: 1px solid #70c0ff;
+  user-select: none;
 }
 
 .shape-point {
   position: absolute;
   background: #fff;
   border: 1px solid #59c7f9;
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
+}
+.el-icon-refresh-right {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: -30px;
+  font-size: 22px;
+  font-weight: 600;
+  cursor: grab;
+  color: #59c7f9;
+  font-size: 22px;
+  font-weight: normal;
+
+  &:active {
+    cursor: grabbing;
+  }
 }
 </style>

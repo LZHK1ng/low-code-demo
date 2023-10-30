@@ -9,11 +9,10 @@ export default function getStyle(style, filter=[]) {
         if (!noNeedUnit.includes(key)) {
           result[key] += 'px'
         }
+      } else {
+        result.transform = key + '(' + style[key] + 'deg)'
       }
-    } else {
-      result.transform = key + '(' + style[key] + 'deg)'
     }
   })
-  // console.log(result)
   return result
 }
