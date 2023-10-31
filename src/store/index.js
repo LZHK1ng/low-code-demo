@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import { swap, deepClone } from '@/utils/utils'
 import toast from '@/utils/toast'
+import generateID from '@/utils/generateID'
 
 Vue.use(Vuex)
 
@@ -12,16 +13,51 @@ const store = new Vuex.Store({
       width: 900,
       height: 440,
     },
-    menuShow: false,
+    menuShow: false, // 右键菜单
     menuLeft: null,
     menuTop: null,
-    componentData: [],
-    curComponent: null,
+    componentData: [], // 画布组件数据
+    curComponent: null, // 当前组件
     curComponentZIndex: null,
     snapshotData: [], // 编辑器快照数据
     snapshotIndex: -1, // 快照索引
+    copyData: null, // 复制粘贴剪切
   },
   mutations: {
+    copy(state) {
+      state.copyData = {
+        data: deepClone(state.curComponent),
+        zIndex: state.curComponentZIndex
+      }
+    },
+    paste(state, isMouse) {
+      if (!state.copyData) {
+        toast('请选择组件', 'error')
+        return
+      }
+
+      const data = state.copyData.data
+      if (isMouse) {
+        data.style.top = state.menuTop
+        data.style.left = state.menuLeft
+      } else {
+        data.style.top += 10
+        data.style.left += 10
+      }
+
+      data.id = generateID()
+      store.commit('addComponent', data)
+      store.commit('recordSnapshot')
+      state.copyData = null
+    },
+    cut({ copyData }) {
+      if (copyData) {
+        store.commit('addComponent', { component: copyData.data })
+      }
+
+      store.commit('copy')
+      store.commit('deleteComponent')
+    },
     setEditMode(state, mode) {
       state.editMode = mode
     },
@@ -30,7 +66,6 @@ const store = new Vuex.Store({
     },
     addComponent(state, component) {
       state.componentData.push(component)
-      console.log(state.componentData)
     },
     setCurComponent(state, { component, zIndex }) {
       state.curComponent = component

@@ -7,6 +7,7 @@
       width: canvasStyleData.width + 'px',
       height: canvasStyleData.height + 'px',
     }"
+    @contextmenu="handleContextMenu"
   >
     <!-- 页面组件列表展示 -->
     <Shape
@@ -93,6 +94,20 @@ export default {
       result.zIndex = index
 
       return result
+    },
+    handleContextMenu(e) {
+      e.stopPropagation()
+      e.preventDefault()
+      let target = e.target
+      let top = e.offsetY
+      let left = e.offsetX
+      while (!target.className.includes('editor')) {
+        left += target.offsetLeft
+        top += target.offsetTop
+        target = target.parentNode
+      }
+
+      this.$store.commit('showContextMenu', { top, left })
     },
     // 组件样式
     getComponentStyle(style) {

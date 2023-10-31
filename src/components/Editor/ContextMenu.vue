@@ -5,11 +5,14 @@
     :style="{ left: menuLeft + 'px', top: menuTop + 'px' }"
   >
     <ul>
-      <li @click="deleteComponent">删除</li>
-      <li @click="topComponent">置顶</li>
-      <li @click="bottomComponent">置底</li>
-      <li @click="upComponent">上移</li>
-      <li @click="downComponent">下移</li>
+      <li v-show="curComponent" @click="copy">复制</li>
+      <li @click="paste">粘贴</li>
+      <li v-show="curComponent" @click="cut">剪切</li>
+      <li v-show="curComponent" @click="deleteComponent">删除</li>
+      <li v-show="curComponent" @click="topComponent">置顶</li>
+      <li v-show="curComponent" @click="bottomComponent">置底</li>
+      <li v-show="curComponent" @click="upComponent">上移</li>
+      <li v-show="curComponent" @click="downComponent">下移</li>
     </ul>
   </div>
 </template>
@@ -17,14 +20,29 @@
 import { mapState } from 'vuex'
 
 export default {
+  data() {
+    return {
+      copyData: null,
+    }
+  },
   computed: {
     ...mapState({
       menuTop: state => state.menuTop,
       menuLeft: state => state.menuLeft,
-      menuShow: state => state.menuShow
+      menuShow: state => state.menuShow,
+      curComponent: state => state.curComponent
     })
   },
   methods: {
+    cut() {
+      this.$store.commit('cut')
+    },
+    copy() {
+      this.$store.commit('copy')
+    },
+    paste() {
+      this.$store.commit('paste', true)
+    },
     deleteComponent() {
       this.$store.commit('deleteComponent')
       this.$store.commit('recordSnapshot')

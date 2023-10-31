@@ -163,13 +163,9 @@ import toast from '@/utils/toast'
 export default {
   components: { ComponentList, Editor, AttrList, Preview, Modal },
   created() {
-    // console.log(localStorage)
-    if (localStorage.getItem('canvasData')) {
-      this.$store.commit('setComponentData', this.resetID(JSON.parse(localStorage.getItem('canvasData'))))
-    }
-    if (localStorage.getItem('canvasStyle')) {
-      this.$store.commit('setCanvasStyle', JSON.parse(localStorage.getItem('canvasStyle')))
-    }
+    this.restore()
+    // 监听复制粘贴
+    this.listenCopyAndPaste()
   },
   data() {
     return {
@@ -193,6 +189,35 @@ export default {
     })
   },
   methods: {
+    listenCopyAndPaste() {
+      const ctrlKey = 17, vKey = 86, cKey = 67, xKey = 88
+      let isCtrlDown = false
+      window.onkeydown = (e) => {
+        if (e.keyCode == ctrlKey) {
+          isCtrlDown = true
+        } else if (isCtrlDown && e.keyCode == cKey) {
+          this.$store.commit('copy')
+        } else if (isCtrlDown && e.keyCode == vKey) {
+          this.$store.commit('paste')
+        } else if (isCtrlDown && e.keyCode == xKey) {
+          this.$store.commit('cut')
+        }
+      }
+
+      window.onkeyup = (e) => {
+        if (e.keyCode == ctrlKey) {
+          isCtrlDown = false
+        }
+      }
+    },
+    restore() {
+      if (localStorage.getItem('canvasData')) {
+        this.$store.commit('setComponentData', this.resetID(JSON.parse(localStorage.getItem('canvasData'))))
+      }
+      if (localStorage.getItem('canvasStyle')) {
+        this.$store.commit('setCanvasStyle', JSON.parse(localStorage.getItem('canvasStyle')))
+      }
+    },
     // 如果localStorage有数据，重新进入页面，插入图片，id可能会初始化会变为0导致id重复
     resetID(componentData) {
       componentData.forEach(item => {
