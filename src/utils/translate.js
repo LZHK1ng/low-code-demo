@@ -54,3 +54,32 @@ export function calculateLeftTop(style, curPosition, pointInfo) {
     style.top = Math.round(newTopLeftPoint.y)
   }
 }
+
+// 计算旋转组件后看到的样式 -> 吸附功能
+export function translateComponentStyle(style) {
+  style = { ...style }
+  if (style.rotate == 0) {
+    style.right = style.left + style.width
+    style.bottom = style.top + style.height
+  } else {
+    const newWidth = cos(style.rotate) * style.width + sin(style.rotate) * style.height
+    style.left += (style.width - newWidth) / 2
+    style.right = style.left + newWidth
+
+    const newHeight = sin(style.rotate) * style.width + cos(style.rotate) * style.height
+    style.top -= (newHeight - style.height) / 2
+    style.bottom = style.top + newHeight
+
+    style.height = newHeight
+    style.width = newWidth
+  }
+  return style
+}
+
+function sin(rotate) {
+  return Math.abs(Math.sin(angleToRadian(rotate)))
+}
+
+function cos(rotate) {
+  return Math.abs(Math.cos(angleToRadian(rotate)))
+}

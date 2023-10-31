@@ -122,6 +122,8 @@ export default {
       e.stopPropagation()
       // console.log(this.element)
       this.$store.commit('setCurComponent', { component: this.element, zIndex: this.zIndex })
+      this.cursors = this.getCursor() // 根据旋转角度获取光标位置
+
       const pos = { ...this.defaultStyle }
       const startX = e.clientX
       const startY = e.clientY
