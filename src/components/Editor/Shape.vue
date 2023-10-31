@@ -25,7 +25,7 @@
 import { mapState } from 'vuex'
 import eventBus from '@/utils/eventBus'
 import runAnimation from '@/utils/runAnimation'
-import calculateComponentPositonAndSize from '@/utils/calculateComponentPositionAndSize'
+import calculateComponentPositionAndSize from '@/utils/calculateComponentPositionAndSize'
 
 export default {
   props: {
@@ -224,9 +224,8 @@ export default {
           x: moveEvent.clientX - editorRectInfo.left,
           y: moveEvent.clientY - editorRectInfo.top
         }
-
-        calculateComponentPositonAndSize(point, style, curPosition, { symmetricPoint })
-        console.log(style)
+        calculateComponentPositionAndSize(point, style, curPosition, { symmetricPoint, clickPoint })
+        // console.log(style)
         this.$store.commit('setShapeStyle', style)
       }
       const up = () => {
@@ -273,7 +272,7 @@ export default {
         document.removeEventListener('mousemove', move)
         document.removeEventListener('mouseup', up)
         this.cursors = this.getCursor() // 根据旋转角度获取光标位置
-        console.log(this.cursors)
+        // console.log(this.cursors)
       }
 
       document.addEventListener('mousemove', move)

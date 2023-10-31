@@ -1,6 +1,6 @@
 import { calculateRotatedPointCoordinate, getCenterPoint } from './translate'
 
-const funcs = {
+const func = {
   lt: calculateLeftTop,
   t: calculateTop,
   rt: calculateRightTop,
@@ -74,20 +74,79 @@ function calculateRightBottom(style, curPosition, pointInfo) {
 function calculateTop(style, curPosition, pointInfo) {
   const { symmetricPoint, clickPoint } = pointInfo
   const rotatedCurPosition = calculateRotatedPointCoordinate(curPosition, clickPoint, -style.rotate)
+  const rotatedTopMiddlePosition = calculateRotatedPointCoordinate({
+    x: clickPoint.x,
+    y: rotatedCurPosition.y
+  }, clickPoint, style.rotate)
+  const newHeight = Math.sqrt((rotatedTopMiddlePosition.x - symmetricPoint.x) ** 2 + (rotatedTopMiddlePosition.y - symmetricPoint.y) ** 2)
+  if (newHeight > 0) {
+    const newCenter = {
+      x: rotatedTopMiddlePosition.x - (rotatedTopMiddlePosition.x - symmetricPoint.x) / 2,
+      y: rotatedTopMiddlePosition.y + (symmetricPoint.y - rotatedTopMiddlePosition.y) / 2
+    }
+    style.height = Math.round(newHeight)
+    style.top = Math.round(newCenter.y - newHeight / 2)
+    style.left = Math.round(newCenter.x - style.width / 2)
+  }
 }
 
 function calculateRight(style, curPosition, pointInfo) {
-
+  const { symmetricPoint, clickPoint } = pointInfo
+  const rotatedCurPosition = calculateRotatedPointCoordinate(curPosition, clickPoint, -style.rotate)
+  const rotatedRightMiddlePosition = calculateRotatedPointCoordinate({
+    x: rotatedCurPosition.x,
+    y: clickPoint.y
+  }, clickPoint, style.rotate)
+  const newWidth = Math.sqrt((rotatedRightMiddlePosition.x - symmetricPoint.x) ** 2 + (rotatedRightMiddlePosition.y - symmetricPoint.y) ** 2)
+  if (newWidth > 0) {
+    const newCenter = {
+      x: symmetricPoint.x + (rotatedRightMiddlePosition.x - symmetricPoint.x) / 2,
+      y: rotatedRightMiddlePosition.y - (rotatedRightMiddlePosition.y - symmetricPoint.y) / 2
+    }
+    style.width = Math.round(newWidth)
+    style.top = Math.round(newCenter.y - style.height / 2)
+    style.left = Math.round(newCenter.x - newWidth / 2)
+  }
 }
 
 function calculateBottom(style, curPosition, pointInfo) {
-
+  const { symmetricPoint, clickPoint } = pointInfo
+  const rotatedCurPosition = calculateRotatedPointCoordinate(curPosition, clickPoint, -style.rotate)
+  const rotatedBottomMiddlePosition = calculateRotatedPointCoordinate({
+    x: clickPoint.x,
+    y: rotatedCurPosition.y
+  }, clickPoint, style.rotate)
+  const newHeight = Math.sqrt((rotatedBottomMiddlePosition.x - symmetricPoint.x) ** 2 + (rotatedBottomMiddlePosition.y - symmetricPoint.y) ** 2)
+  if (newHeight > 0) {
+    const newCenter = {
+      x: rotatedBottomMiddlePosition.x + (symmetricPoint.x - rotatedBottomMiddlePosition.x) / 2,
+      y: rotatedBottomMiddlePosition.y - (rotatedBottomMiddlePosition.y - symmetricPoint.y) / 2
+    }
+    style.height = Math.round(newHeight)
+    style.top = Math.round(newCenter.y - newHeight / 2)
+    style.left = Math.round(newCenter.x - style.width / 2)
+  }
 }
 
 function calculateLeft(style, curPosition, pointInfo) {
-
+  const { symmetricPoint, clickPoint } = pointInfo
+  const rotatedCurPosition = calculateRotatedPointCoordinate(curPosition, clickPoint, -style.rotate)
+  const rotatedLeftMiddlePosition = calculateRotatedPointCoordinate({
+    x: rotatedCurPosition.x,
+    y: clickPoint.y
+  }, clickPoint, style.rotate)
+  const newWidth = Math.sqrt((rotatedLeftMiddlePosition.x - symmetricPoint.x) ** 2 + (rotatedLeftMiddlePosition.y - symmetricPoint.y) ** 2)
+  if (newWidth > 0) {
+    const newCenter = {
+      x: rotatedLeftMiddlePosition.x + (symmetricPoint.x - rotatedLeftMiddlePosition.x) / 2,
+      y: symmetricPoint.y - (symmetricPoint.y - rotatedLeftMiddlePosition.y) / 2
+    }
+    style.width = Math.round(newWidth)
+    style.top = Math.round(newCenter.y - style.height / 2)
+    style.left = Math.round(newCenter.x - newWidth / 2)
+  }
 }
 
 export default function calculateComponentPositonAndSize(name, style, curPosition, pointInfo) {
-  funcs[name](style, curPosition, pointInfo)
+  func[name](style, curPosition, pointInfo)
 }
