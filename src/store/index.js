@@ -50,11 +50,14 @@ const store = new Vuex.Store({
       store.commit('recordSnapshot')
       state.copyData = null
     },
-    cut({ copyData }) {
-      if (copyData) {
-        store.commit('addComponent', { component: copyData.data })
+    cut(state) {
+      if (state.copyData) {
+        store.commit('addComponent', { component: state.copyData.data, index: state.copyData.zIndex })
+        if (state.curComponentZIndex >= state.copyData.zIndex) {
+          // 如果当前组件索引大于等于插入索引，需要加一，因为当前组件往后移了一位
+          state.curComponentZIndex++
+        }
       }
-
       store.commit('copy')
       store.commit('deleteComponent')
     },
@@ -64,8 +67,12 @@ const store = new Vuex.Store({
     setCanvasStyle(state, style) {
       state.canvasStyleData = style
     },
-    addComponent(state, component) {
-      state.componentData.push(component)
+    addComponent(state, { component, index }) {
+      if (index !== undefined) {
+        state.componentData.splice(index, 0, component)
+      } else {
+        state.componentData.push(component)
+      }
     },
     setCurComponent(state, { component, zIndex }) {
       state.curComponent = component
