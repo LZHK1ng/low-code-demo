@@ -127,11 +127,14 @@ export default {
       // 防止角度有负数 +360
       const rotate = (this.curComponent.style.rotate + 360) % 360
       const result = {}
+      let lastMatchIndex = -1
       this.pointList.forEach(point => {
         // 当前点的角度
         const angle = (this.initialAngle[point] + rotate) % 360
-        for (let i = 0, len = this.angleToCursor.length; i < len; i++) {
-          const curAngle = this.angleToCursor[i]
+        let i = 0, len = this.angleToCursor.length
+        while (i < len) {
+          lastMatchIndex = (lastMatchIndex + 1) % len
+          const curAngle = this.angleToCursor[lastMatchIndex]
           if (angle >= 338 || angle < 23) {
             result[point] = 'nw-resize'
             break
