@@ -15,7 +15,7 @@
       class="shape-point"
       v-for="(item, index) in active ? pointList : []"
       :key="index"
-      @mousedown="handleMouseDownOnPoint(item)"
+      @mousedown="handleMouseDownOnPoint(item, $event)"
       :style="getPointStyle(item, index)"
     ></div>
     <slot></slot>
@@ -224,10 +224,9 @@ export default {
       this.$store.commit('showContextMenu', { top, left })
     },
     // 点击圆点 放大or缩小
-    handleMouseDownOnPoint(point) {
-      const downEvent = window.event
-      downEvent.stopPropagation()
-      downEvent.preventDefault()
+    handleMouseDownOnPoint(point, e) {
+      e.stopPropagation()
+      e.preventDefault()
 
       const style = { ...this.defaultStyle }
 
@@ -241,8 +240,8 @@ export default {
       const editorRectInfo = document.querySelector('#editor').getBoundingClientRect()
       // 获取当前点击坐标
       const clickPoint = {
-        x: downEvent.clientX - editorRectInfo.left,
-        y: downEvent.clientY - editorRectInfo.top
+        x: e.clientX - editorRectInfo.left,
+        y: e.clientY - editorRectInfo.top
       }
       // 获取对称点坐标
       const symmetricPoint = {
