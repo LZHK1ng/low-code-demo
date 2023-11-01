@@ -55,9 +55,28 @@ export default {
   },
   data() {
     return {
-      pointList: ['t', 'rt', 'r', 'rb', 'b', 'lb', 'l', 'lt'],
-      directions: ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'], // 北方向 顺时针旋转依次对应8个方向
-      cursors: [],
+      pointList: ['lt', 't', 'rt', 'r', 'rb', 'b', 'lb', 'l'], // 八个方向
+      initialAngle: { // 每个点对应的初始角度
+        lt: 0,
+        t: 45,
+        rt: 90,
+        r: 135,
+        rb: 180,
+        b: 225,
+        lb: 270,
+        l: 315,
+      },
+      angleToCursor: [ // 每个范围的角度对应的光标
+        { start: 338, end: 23, cursor: 'nw' }, // 337.5 22.5
+        { start: 23, end: 68, cursor: 'n' },
+        { start: 68, end: 113, cursor: 'ne' },
+        { start: 113, end: 158, cursor: 'e' },
+        { start: 158, end: 203, cursor: 'se' },
+        { start: 203, end: 248, cursor: 's' },
+        { start: 248, end: 293, cursor: 'sw' },
+        { start: 293, end: 338, cursor: 'w' },
+      ],
+      cursors: {}
     }
   },
   computed: {
@@ -67,7 +86,7 @@ export default {
   },
   methods: {
     // 获取shape框每个点坐标
-    getPointStyle(point, index) {
+    getPointStyle(point) {
       const { width, height } = this.defaultStyle
       const hasL = /l/.test(point)
       const hasT = /t/.test(point)
@@ -99,20 +118,31 @@ export default {
         top: `${newTop}px`,
         marginLeft: hasR ? '-4px' : '-4px',
         marginTop: '-4px',
-        cursor: this.cursors[index]
+        cursor: this.cursors[point]
       }
 
       return style
     },
     getCursor() {
-      // 防止角度有负数 +360，最后%8表示分成八份，旋转角度在8个部分中的一个
-      const offsetNum = Math.floor(((this.curComponent.style.rotate + 360) % 360) / 45) % 8
-      const { directions } = this
-      const newDirections = [
-        ...directions.slice(offsetNum),
-        ...directions.slice(0, offsetNum)
-      ]
-      return newDirections.map(direction => direction + '-resize')
+      // 防止角度有负数 +360
+      const rotate = (this.curComponent.style.rotate + 360) % 360
+      const result = {}
+      this.pointList.forEach(point => {
+        // 当前点的角度
+        const angle = (this.initialAngle[point] + rotate) % 360
+        for (let i = 0, len = this.angleToCursor.length; i < len; i++) {
+          const curAngle = this.angleToCursor[i]
+          if (angle >= 338 || angle < 23) {
+            result[point] = 'nw-resize'
+            break
+          }
+          if (curAngle.start <= angle && curAngle.end > angle) {
+            result[point] = curAngle.cursor + '-resize'
+            break
+          }
+        }
+      })
+      return result
     },
     handleMouseDownOnShape(e) {
       // 输入框不需要阻止默认事件（不然点击输入不了）
