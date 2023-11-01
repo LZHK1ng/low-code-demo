@@ -190,7 +190,7 @@ export default {
       if (key == 'top') {
         return Math.round(condition.dragShift - (height - curComponentStyle.height) / 2)
       }
-      return Math.round(condition.dragShift)
+      return Math.round(condition.dragShift - (width - curComponentStyle.width) / 2)
     },
     // 判断当前是否靠近
     isNearly(dragValue, targetValue) {
