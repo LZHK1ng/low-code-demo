@@ -3,7 +3,8 @@ import Vue from 'vue'
 const components = [
   'Picture',
   'VText',
-  'VButton'
+  'VButton',
+  'Group'
 ]
 
 components.forEach(key => {

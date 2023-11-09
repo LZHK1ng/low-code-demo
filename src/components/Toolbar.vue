@@ -7,6 +7,8 @@
     <el-button @click="preview" style="margin-left: 10px">预览</el-button>
     <el-button @click="save">保存</el-button>
     <el-button @click="clearCanvas">清空画布</el-button>
+    <el-button @click="compose">组合</el-button>
+    <el-button @click="decompose">拆分</el-button>
     <div class="canvas-config">
       <span>画布大小</span>
       <input v-model="canvasStyleData.width" />
@@ -23,6 +25,7 @@ import generateID from '@/utils/generateID'
 import toast from '@/utils/toast'
 import { mapState } from 'vuex'
 import Preview from '@/components/Editor/Preview'
+import { commonStyle, commonAttr } from '@/custom-component/component-list'
 
 export default {
   components: {
@@ -40,6 +43,12 @@ export default {
     })
   },
   methods: {
+    compose() {
+      this.$store.commit('compose')
+    },
+    decompose() {
+      this.$store.commit('decompose')
+    },
     undo() {
       this.$store.commit('undo')
     },
@@ -58,19 +67,20 @@ export default {
         const img = new Image()
         img.onload = () => {
           this.$store.commit('addComponent', {
-            id: generateID(),
-            component: 'Picture',
-            label: '图片',
-            icon: '',
-            propValue: fileResult,
-            animations: [],
-            events: [],
-            style: {
-              top: 0,
-              left: 0,
-              width: img.width,
-              height: img.height,
-              rotate: '',
+            component: {
+              ...commonAttr,
+              id: generateID(),
+              component: 'Picture',
+              label: '图片',
+              icon: '',
+              propValue: fileResult,
+              style: {
+                ...commonStyle,
+                top: 0,
+                left: 0,
+                width: img.width,
+                height: img.height,
+              },
             },
           })
         }

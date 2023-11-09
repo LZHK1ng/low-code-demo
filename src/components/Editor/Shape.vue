@@ -13,10 +13,10 @@
     ></i>
     <div
       class="shape-point"
-      v-for="(item, index) in active ? pointList : []"
-      :key="index"
+      v-for="item in active ? pointList : []"
+      :key="item"
       @mousedown="handleMouseDownOnPoint(item, $event)"
-      :style="getPointStyle(item, index)"
+      :style="getPointStyle(item)"
     ></div>
     <slot></slot>
   </div>
@@ -41,7 +41,7 @@ export default {
       require: true,
       type: Object
     },
-    zIndex: {
+    index: {
       require: true,
       type: [Number, String]
     }
@@ -81,7 +81,8 @@ export default {
   },
   computed: {
     ...mapState({
-      curComponent: state => state.curComponent
+      curComponent: state => state.curComponent,
+      editor: state => state.editor
     })
   },
   methods: {
@@ -154,7 +155,7 @@ export default {
       }
       e.stopPropagation()
       // console.log(this.element)
-      this.$store.commit('setCurComponent', { component: this.element, zIndex: this.zIndex })
+      this.$store.commit('setCurComponent', { component: this.element, index: this.index })
       this.cursors = this.getCursor() // 根据旋转角度获取光标位置
 
       const pos = { ...this.defaultStyle }
@@ -237,7 +238,7 @@ export default {
       }
 
       // 获取画布位移信息
-      const editorRectInfo = document.querySelector('#editor').getBoundingClientRect()
+      const editorRectInfo = this.editor.getBoundingClientRect()
       // 获取当前点击坐标
       const clickPoint = {
         x: e.clientX - editorRectInfo.left,
@@ -272,6 +273,7 @@ export default {
       document.addEventListener('mouseup', up)
     },
     handleRotate(e) {
+      e.preventDefault()
       e.stopPropagation()
       // 获得当前旋转的中心点坐标
       const rect = this.$el.getBoundingClientRect()

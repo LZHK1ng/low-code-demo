@@ -118,7 +118,7 @@ export default {
       component.style.top = e.offsetY
       component.style.left = e.offsetX
       component.id = generateID()
-      this.$store.commit('addComponent', component)
+      this.$store.commit('addComponent', { component })
       this.$store.commit('recordSnapshot')
     },
     handleDragOver(e) {
@@ -127,7 +127,7 @@ export default {
     },
 
     deselectCurComponent() {
-      this.$store.commit('setCurComponent', { component: null, zIndex: null })
+      this.$store.commit('setCurComponent', { component: null, index: null })
       this.$store.commit('hideContextMenu')
     },
 

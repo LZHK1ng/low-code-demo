@@ -9,7 +9,7 @@
   </div>
 </template>
 <script>
-import getStyle from '@/utils/style'
+import { getStyle } from '@/utils/style'
 import runAnimation from '@/utils/runAnimation'
 import { mixins } from '@/utils/events' // 拿了events.js里面method的方法alert和redirect
 

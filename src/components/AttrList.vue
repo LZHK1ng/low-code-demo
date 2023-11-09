@@ -46,7 +46,7 @@ import { mapState } from 'vuex'
 export default {
   data() {
     return {
-      excludes: ['Picture'], // 不显示内容的组件
+      excludes: ['Picture', 'Group'], // 不显示内容的组件
       map: {
         left: 'x 坐标',
         top: 'y 坐标',
