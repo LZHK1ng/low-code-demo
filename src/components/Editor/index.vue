@@ -20,6 +20,7 @@
       :style="getShapeStyle(item.style, index)"
       :element="item"
       :index="index"
+      :class="{ lock: item.isLock }"
     >
       <!-- 如果不是输入框 -->
       <component
@@ -177,6 +178,7 @@ export default {
       const result = []
       const { x, y } = this.start
       this.componentData.forEach(component => {
+        if (component.isLock) return
         const { left, top, width, height } = component.style
         if (x <= left && (left + width <= x + this.width) && y <= top && (top + height <= y + this.height)) {
           result.push(component)
@@ -248,6 +250,10 @@ export default {
   position: relative;
   background: #fff;
   margin: auto;
+
+  .lock {
+    opacity: 0.5;
+  }
 }
 
 .edit {

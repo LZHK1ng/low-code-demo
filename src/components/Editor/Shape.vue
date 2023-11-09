@@ -1,19 +1,19 @@
 <template>
   <div
     class="shape"
-    :class="{ active: this.active }"
+    :class="{ active }"
     @click="selectCurComponent"
     @mousedown="handleMouseDownOnShape"
     @contextmenu="handleContextMenu"
   >
     <i
       class="el-icon-refresh-right"
-      v-show="active"
+      v-show="isActive()"
       @mousedown="handleRotate"
     ></i>
     <div
       class="shape-point"
-      v-for="item in active ? pointList : []"
+      v-for="item in isActive() ? pointList : []"
       :key="item"
       @mousedown="handleMouseDownOnPoint(item, $event)"
       :style="getPointStyle(item)"
@@ -87,9 +87,12 @@ export default {
     ...mapState({
       curComponent: state => state.curComponent,
       editor: state => state.editor
-    })
+    }),
   },
   methods: {
+    isActive() {
+      return this.active && !this.element.isLock
+    },
     // 获取shape框每个点坐标
     getPointStyle(point) {
       const { width, height } = this.defaultStyle
@@ -160,6 +163,9 @@ export default {
       e.stopPropagation()
       // console.log(this.element)
       this.$store.commit('setCurComponent', { component: this.element, index: this.index })
+
+      if (this.element.isLock) return
+
       this.cursors = this.getCursor() // 根据旋转角度获取光标位置
 
       const pos = { ...this.defaultStyle }

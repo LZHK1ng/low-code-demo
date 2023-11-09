@@ -12,9 +12,19 @@
     >
     <el-button
       @click="decompose"
-      :disabled="!curComponent || curComponent.component != 'Group'"
+      :disabled="
+        !curComponent ||
+        curComponent.isLock ||
+        curComponent.component != 'Group'
+      "
       >拆分</el-button
     >
+    <el-button @click="lock" :disabled="!curComponent || curComponent.isLock"
+      >锁定</el-button
+    >
+    <el-button @click="unlock" :disabled="!curComponent || !curComponent.isLock"
+      >解锁
+    </el-button>
     <div class="canvas-config">
       <span>画布大小</span>
       <input v-model="canvasStyleData.width" />
@@ -54,6 +64,12 @@ export default {
     })
   },
   methods: {
+    lock() {
+      this.$store.commit('lock')
+    },
+    unlock() {
+      this.$store.commit('unlock')
+    },
     compose() {
       this.$store.commit('compose')
       this.$store.commit('recordSnapshot')

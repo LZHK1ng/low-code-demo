@@ -38,6 +38,12 @@ const store = new Vuex.Store({
     editor: null,
   },
   mutations: {
+    lock({ curComponent }) {
+      curComponent.isLock = true
+    },
+    unlock({ curComponent }) {
+      curComponent.isLock = false
+    },
     getEditor(state) {
       state.editor = $('#editor')
     },
