@@ -1,19 +1,21 @@
 <template>
   <div class="bg" v-if="show">
     <el-button @click="close" class="close">关闭</el-button>
-    <div
-      class="canvas"
-      :style="{
-        width: canvasStyleData.width + 'px',
-        height: canvasStyleData.height + 'px',
-        transform: 'scale(' + parseInt(canvasStyleData.scale) / 100 + ')',
-      }"
-    >
-      <ComponentWrapper
-        v-for="(item, index) in componentData"
-        :key="index"
-        :config="item"
-      />
+    <div class="canvas-container">
+      <div
+        class="canvas"
+        :style="{
+          width: canvasStyleData.width + 'px',
+          height: canvasStyleData.height + 'px',
+          transform: 'scale(' + parseInt(canvasStyleData.scale) / 100 + ')',
+        }"
+      >
+        <ComponentWrapper
+          v-for="(item, index) in componentData"
+          :key="index"
+          :config="item"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -62,9 +64,15 @@ export default {
   overflow: auto;
   padding: 20px;
 
-  .canvas {
-    position: relative;
-    background: #fff;
+  .canvas-container {
+    width: calc(100% - 40px);
+    height: calc(100% - 120px);
+    overflow: auto;
+
+    .canvas {
+      position: relative;
+      background: #fff;
+    }
   }
 
   .close {
