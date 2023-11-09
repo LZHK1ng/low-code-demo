@@ -65,7 +65,7 @@ export default {
     handleKeydown(e) {
       if (e.keyCode == this.crtlKey) {
         this.isCtrlDown = true
-      } else if (this.isCtrlDown && this.canEdit) {
+      } else if (this.isCtrlDown && this.keys.includes(e.keyCode)) {
         e.stopPropagation()
       } else if (e.keyCode == 46) {
         e.stopPropagation()
@@ -93,8 +93,8 @@ export default {
     },
 
     handleBlur(e) {
-      this.element.propValue = e.target.innerHTML || '&nbsp;'
-      this.canEdit = true
+      this.element.propValue = e.target.innerHTML
+      this.canEdit = false
     },
     setEdit() {
       this.canEdit = true
@@ -130,13 +130,7 @@ export default {
 
   .canEdit {
     cursor: text;
-  }
-
-  .text {
-    border: 1px solid #ddd;
-    padding: 5px 10px;
-    white-space: normal;
-    word-break: break-all;
+    height: 100%;
   }
 }
 </style>
