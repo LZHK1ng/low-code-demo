@@ -15,7 +15,10 @@
       <span>*</span>
       <input v-model="canvasStyleData.height" />
     </div>
-
+    <div class="canvas-config">
+      <span>画布比例</span>
+      <input v-model="canvasStyleData.scale" /> %
+    </div>
     <!-- 预览 -->
     <Preview v-model="isShowPreview" @change="handlePreviewChange" />
   </div>

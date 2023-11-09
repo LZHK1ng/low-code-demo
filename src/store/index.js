@@ -15,6 +15,7 @@ const store = new Vuex.Store({
     canvasStyleData: {
       width: 900,
       height: 440,
+      scale: 100
     },
     menuShow: false, // 右键菜单
     menuLeft: null,
