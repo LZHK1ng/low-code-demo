@@ -6,11 +6,12 @@
     @mousedown="handleMouseDownOnShape"
     @contextmenu="handleContextMenu"
   >
-    <i
-      class="el-icon-refresh-right"
+    <span
+      class="iconfont icon-xiangyouxuanzhuan"
       v-show="isActive()"
       @mousedown="handleRotate"
-    ></i>
+    ></span>
+    <span class="iconfont icon-suo" v-show="element.isLock"></span>
     <div
       class="shape-point"
       v-for="item in isActive() ? pointList : []"
@@ -349,20 +350,27 @@ export default {
   height: 8px;
   border-radius: 50%;
 }
-.el-icon-refresh-right {
+.icon-xiangyouxuanzhuan {
   position: absolute;
+  top: -34px;
   left: 50%;
   transform: translateX(-50%);
-  top: -30px;
-  font-size: 22px;
+  font-size: 16px;
   font-weight: 600;
   cursor: grab;
   color: #59c7f9;
   font-size: 22px;
-  font-weight: normal;
+  font-weight: 600;
 
   &:active {
     cursor: grabbing;
   }
+}
+.icon-suo {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 99999;
+  font-weight: bold;
 }
 </style>
