@@ -47,6 +47,10 @@ export default {
     }
   },
   mounted() {
+    // 用于Group组件
+    if (this.curComponent) {
+      this.cursors = this.getCursor() // 根据旋转角度获取光标位置
+    }
     eventBus.$on('runAnimation', () => {
       if (this.element == this.curComponent) {
         runAnimation(this.$el, this.curComponent.animations)
