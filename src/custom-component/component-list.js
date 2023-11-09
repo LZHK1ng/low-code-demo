@@ -19,7 +19,7 @@ const list = [
     icon: 'el-icon-edit', // 显示图标
     style: { // 样式
       width: 200,
-      height: 33,
+      height: 22,
       fontSize: 14,
       fontWeight: 500,
       lineHeight: '',

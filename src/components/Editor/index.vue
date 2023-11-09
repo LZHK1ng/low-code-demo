@@ -29,16 +29,18 @@
         :style="getComponentStyle(item.style)"
         :element="item"
         :propValue="item.propValue"
+        :id="'component' + item.id"
       />
       <!-- 如果是输入框 需要传入input事件 -->
       <component
         v-else
         class="component"
         :is="item.component"
-        :style="getComponentStyle(item.style, index)"
+        :style="getComponentStyle(item.style)"
         :propValue="item.propValue"
         :element="item"
         @input="handleInput"
+        :id="'component' + item.id"
       />
     </Shape>
     <!-- 右击菜单 -->
