@@ -149,8 +149,8 @@ export default {
       return result
     },
     handleMouseDownOnShape(e) {
-      // 输入框不需要阻止默认事件（不然点击输入不了）
-      if (this.element.component != 'v-text') {
+      // 输入框/矩形框 不需要阻止默认事件（不然点击输入不了）
+      if (this.element.component != 'v-text' && this.element.component != 'rect-shape') {
         e.preventDefault()
       }
       e.stopPropagation()

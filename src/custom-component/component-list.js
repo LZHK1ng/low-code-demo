@@ -15,7 +15,7 @@ const list = [
   {
     component: 'v-text', // 组件名称，提前注册到vue
     label: '文字', // 左侧组件列表显示名字
-    propValue: '文字', // 组件使用值
+    propValue: '双击编辑文字', // 组件使用值
     icon: 'el-icon-edit', // 显示图标
     style: { // 样式
       width: 200,
@@ -59,6 +59,27 @@ const list = [
       borderRadius: '',
     },
   },
+  {
+    component: 'rect-shape',
+    label: '矩形',
+    propValue: '双击编辑文字',
+    icon: 'el-icon-edit',
+    style: {
+      width: 200,
+      height: 200,
+      fontSize: 14,
+      fontWeight: 500,
+      lineHeight: '',
+      letterSpacing: 0,
+      textAlign: 'center',
+      color: '',
+      borderColor: '#000',
+      borderWidth: 1,
+      backgroundColor: '',
+      borderStyle: 'solid',
+      verticalAlign: 'middle',
+    },
+  }
 ]
 
 for (let i = 0, len = list.length; i < len; i++) {

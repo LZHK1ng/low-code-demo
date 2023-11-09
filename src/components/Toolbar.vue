@@ -7,8 +7,14 @@
     <el-button @click="preview" style="margin-left: 10px">预览</el-button>
     <el-button @click="save">保存</el-button>
     <el-button @click="clearCanvas">清空画布</el-button>
-    <el-button @click="compose">组合</el-button>
-    <el-button @click="decompose">拆分</el-button>
+    <el-button @click="compose" :disabled="!areaData.components.length"
+      >组合</el-button
+    >
+    <el-button
+      @click="decompose"
+      :disabled="!curComponent || curComponent.component != 'Group'"
+      >拆分</el-button
+    >
     <div class="canvas-config">
       <span>画布大小</span>
       <input v-model="canvasStyleData.width" />
@@ -42,7 +48,9 @@ export default {
   computed: {
     ...mapState({
       canvasStyleData: state => state.canvasStyleData,
-      componentData: state => state.componentData
+      componentData: state => state.componentData,
+      areaData: state => state.areaData,
+      curComponent: state => state.curComponent
     })
   },
   methods: {

@@ -16,8 +16,10 @@ function calculateLeftTop(style, curPosition, pointInfo) {
   const newCenterPoint = getCenterPoint(curPosition, symmetricPoint)
   const newTopLeftPoint = calculateRotatedPointCoordinate(curPosition, newCenterPoint, -style.rotate)
   const newBottomRightPoint = calculateRotatedPointCoordinate(symmetricPoint, newCenterPoint, -style.rotate)
+
   const newWidth = newBottomRightPoint.x - newTopLeftPoint.x
   const newHeight = newBottomRightPoint.y - newTopLeftPoint.y
+
   if (newWidth > 0 && newHeight > 0) {
     style.width = Math.round(newWidth)
     style.height = Math.round(newHeight)
